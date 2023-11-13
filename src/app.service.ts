@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UseGuards } from '@nestjs/common';
 import { RecoverCajaPasswordDto } from './common/dtos/RecoverCajaPassword.dto';
 import { MailerService } from '@nestjs-modules/mailer';
+import { IsAuthenticatedMiddleware } from './common/middlewares/IsAuthenticated.middleware';
 
 @Injectable()
 export class AppService {
@@ -9,8 +10,8 @@ export class AppService {
     return 'Hello World!';
   }
 
+  @UseGuards(IsAuthenticatedMiddleware)
   recoverCajaPassword(data: RecoverCajaPasswordDto) {
-    console.log('sending', data);
     return this.mailerService.sendMail({
       to: [data.defaultEmail, data.email],
       from: process.env.GMAIL_ACCOUNT,

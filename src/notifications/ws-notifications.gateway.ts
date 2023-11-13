@@ -16,11 +16,9 @@ export class NotificationsWsGateway implements OnGatewayConnection, OnGatewayDis
   constructor(private readonly service: WsNotificationsService) {}
   handleConnection(client: Socket) {
     this.service.registerClient(client);
-    console.log('clients online: ', this.service.getConnectedClients());
   }
   handleDisconnect(client: Socket) {
     this.service.removeClient(client.id);
-    console.log('clients online: ', this.service.getConnectedClients());
   }
 
   @SubscribeMessage('get-reservas')
@@ -28,17 +26,33 @@ export class NotificationsWsGateway implements OnGatewayConnection, OnGatewayDis
     return this.service.handleGetReservas(client, dateString);
   }
 
-  @SubscribeMessage('reserva-updated')
-  private handleReservaUpdated(client: Socket, payload: any) {
-    console.log('db emitió mensaje');
-    this.wss.emit('reserva-updated', JSON.parse(payload));
-    console.log('evento reenviado');
+  @SubscribeMessage('get-reserva')
+  private handleGetReserva(client: Socket, id: string) {
+    return this.service.handleGetReserva(client, id);
   }
 
-  @SubscribeMessage('try-to-update-reserva')
-  private handleSendMessage(client: Socket, payload: any) {
-    console.log('web emitió mensaje', payload);
-    this.wss.emit('try-to-update-reserva', payload);
-    console.log('evento reenviado');
+  @SubscribeMessage('get-recursos-disponibles')
+  private handleGetRecursosDisponibles(client: Socket, payload: string[]) {
+    return this.service.handleGetRecursosDisponibles(client, payload);
+  }
+
+  @SubscribeMessage('save-reserva')
+  private handleSaveReserva(client: Socket, payload) {
+    return this.service.handleSaveReserva(client, payload);
+  }
+
+  @SubscribeMessage('update-reserva')
+  private handleUpdateReserva(client: Socket, payload) {
+    return this.service.handleUpdateReserva(client, payload);
+  }
+
+  @SubscribeMessage('delete-reserva')
+  private handleDeleteReserva(client: Socket, payload) {
+    return this.service.handleDeleteReserva(client, payload);
+  }
+
+  @SubscribeMessage('reserva-updated')
+  private handleReservaUpdated(client: Socket, payload: any) {
+    this.wss.emit('reserva-updated', JSON.parse(payload));
   }
 }
