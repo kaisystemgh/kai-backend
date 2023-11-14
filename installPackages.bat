@@ -1,0 +1,3 @@
+@echo off
+echo Instalando paquetes...
+npm install
