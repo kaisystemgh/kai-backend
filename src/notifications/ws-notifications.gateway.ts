@@ -8,7 +8,11 @@ import {
 import { WsNotificationsService } from './ws-notifications.service';
 import { Server, Socket } from 'socket.io';
 
-@WebSocketGateway({ cors: true, namespace: '/' })
+@WebSocketGateway({
+  cors: true,
+  transports: ['polling'],
+  namespace: '/',
+})
 export class NotificationsWsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private RESERVA_UPDATED_EVENT = 'reserva-updated';
   @WebSocketServer() wss: Server;

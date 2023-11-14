@@ -4,14 +4,11 @@ import { NestFactory } from '@nestjs/core';
 import { useContainer } from 'class-validator';
 import { AppModule } from './app.module';
 import * as admin from 'firebase-admin';
-import express from 'express';
-import { ExpressAdapter } from '@nestjs/platform-express';
-import { getFirebaseConfig } from './common/config/FirebaseConfig';
+import { exec } from 'child_process';
+import fs from 'fs';
 
-const server = express();
-
-export const createNestServer = async (expressInstance) => {
-  const app = await NestFactory.create(AppModule, new ExpressAdapter(expressInstance));
+export const bootstrap = async () => {
+  const app = await NestFactory.create(AppModule);
 
   app.enableCors({
     origin: '*',
@@ -32,22 +29,56 @@ export const createNestServer = async (expressInstance) => {
     }),
   );
 
+  await startNgrok();
+
+  const serviceAccount = JSON.parse(fs.readFileSync('serviceAccount.json', 'utf-8'));
   admin.initializeApp({
-    credential: admin.credential.cert(getFirebaseConfig(process.env)),
+    credential: admin.credential.cert({ ...serviceAccount }),
   });
 
-  return app.init();
+  await app.listen(process.env.PORT, () => {
+    console.log('Server running on port: ', process.env.PORT);
+    console.log('Tunnel online at ', process.env.NGROK_DOMAIN);
+  });
+};
+bootstrap();
+
+const startNgrok = async () => {
+  return new Promise(async (resolve) => {
+    const isRunning = await ngrokCheckIsRunning();
+    console.log(isRunning ? 'El servicio ya está corriendo en ngrok' : 'Levantando el servicio en ngrok...');
+    if (!isRunning) {
+      console.log('Agregando el token de ngrok...');
+      await ngrokExecAddToken();
+      console.log('Iniciando el tunel...');
+      await ngrokExecStart();
+    }
+    resolve(true);
+  });
 };
 
-//Listen
-createNestServer(server).then(async (app) => {
-  const PORT = process.env.PORT || 3000;
-  await app.listen(PORT);
-  console.log('Running on port:', PORT);
-});
+const ngrokCheckIsRunning = async () => {
+  const checkIsRunning = `ngrok api tunnels list --api-key=${process.env.NGROK_API_KEY}`;
+  return new Promise((resolve, reject) => {
+    exec(checkIsRunning, (error, stdout) => {
+      if (error) reject(error);
+      const res = JSON.parse(stdout.trim());
+      resolve(res?.tunnels?.some((tunnel) => String(tunnel.public_url).endsWith(process.env.NGROK_DOMAIN)));
+    });
+  });
+};
 
-// Deploy on GCP
-// createNestServer(server);
-//   .then((v) => console.log('Nest app ready!'))
-//   .catch((err) => console.error('Nest broken!', err));
-// export const api = functions.https.onRequest(server);
+const ngrokExecAddToken = async () => {
+  const addTokenCommand = `ngrok config add-authtoken ${process.env.NGROK_TOKEN}`;
+  return new Promise((resolve, reject) => {
+    exec(addTokenCommand, (error, stdout) => {
+      if (error) reject(error);
+      resolve(stdout.trim());
+    });
+  });
+};
+
+const ngrokExecStart = async () => {
+  const startTunnelCommand = `ngrok http --domain=${process.env.NGROK_DOMAIN} ${process.env.PORT}`;
+  exec(startTunnelCommand);
+};
