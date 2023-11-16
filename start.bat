@@ -1,3 +1,6 @@
 @echo off
 echo Iniciando el servidor... 
-npx nest start
+docker-compose up -d
+echo El servidor se esta iniciando. Puede ver el estado desde Docker Desktop... 
+echo Puede cerrar esta ventana. Presione cualquier tecla para salir.
+pause >nul
