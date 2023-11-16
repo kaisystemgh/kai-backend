@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+  kaiapp:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    image: kai-docker
+    container_name: kaiapp
+    restart: always
+    ports:
+      - "${PORT}:${PORT}"
+    env_file:
+      - .env 
+    environment:
+      PORT: ${PORT}
+      API_KEY: ${API_KEY}
+      GMAIL_ACCOUNT: ${GMAIL_ACCOUNT}
+      GMAIL_APP_PASSWORD: ${GMAIL_APP_PASSWORD}
+  ngrok:
+    image: ngrok/ngrok:alpine
+    restart: unless-stopped
+    command:
+      - "start"
+      - "--all"
+      - "--config"
+      - "/etc/ngrok.yml"
+    volumes:
+      - ./ngrok.yml:/etc/ngrok.yml
+    ports:
+      - 4040:4040

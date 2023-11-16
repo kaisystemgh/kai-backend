@@ -1,0 +1,22 @@
+authtoken: TU_NGROK_TOKEN
+connect_timeout: 30s
+console_ui: true
+console_ui_color: transparent
+dns_resolver_ips:
+  - 1.1.1.1
+  - 8.8.8.8
+heartbeat_interval: 1m
+heartbeat_tolerance: 5s
+inspect_db_size: 50000000
+metadata: '{"serial": "00012xa-33rUtz9", "comment": "For customer alan@example.com"}'
+region: us
+remote_management: false
+update_channel: stable
+update_check: false
+version: 2
+web_addr: localhost:4040
+tunnels:
+  kai_tunnel:
+    addr: host.docker.internal:5000
+    proto: http
+    domain: TU_NGROK_DOMAIN
