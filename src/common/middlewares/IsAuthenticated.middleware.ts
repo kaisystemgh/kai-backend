@@ -1,13 +1,15 @@
 import { UnauthorizedException, Injectable, NestMiddleware } from '@nestjs/common';
-import * as admin from 'firebase-admin';
 import { Request, Response, NextFunction } from 'express';
 import { ConfigService } from '@nestjs/config';
+import { verify } from 'jsonwebtoken';
 
 @Injectable()
 export class IsAuthenticatedMiddleware implements NestMiddleware {
   private API_KEY: string;
+  private JWT_SECRET: string;
   constructor(private readonly configService: ConfigService) {
     this.API_KEY = this.configService.get('API_KEY');
+    this.JWT_SECRET = this.configService.get('JWT_SECRET');
   }
 
   async use(req: Request, res: Response, next: NextFunction) {
@@ -19,7 +21,8 @@ export class IsAuthenticatedMiddleware implements NestMiddleware {
     if (!token) throw new UnauthorizedException('Authorization required');
 
     try {
-      req['user'] = await admin.auth().verifyIdToken(token);
+      verify(token, this.JWT_SECRET);
+      // req['user'] = await admin.auth().verifyIdToken(token);
       next();
     } catch (error) {
       throw new UnauthorizedException('Invalid token');

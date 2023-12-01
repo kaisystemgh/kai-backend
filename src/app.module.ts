@@ -6,12 +6,15 @@ import { HttpModule } from '@nestjs/axios';
 import { NotificationsModule } from './notifications/notifications.module';
 import { IsAuthenticatedMiddleware } from './common/middlewares/IsAuthenticated.middleware';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { MongooseModule } from '@nestjs/mongoose';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       envFilePath: '.env',
     }),
+    MongooseModule.forRoot(process.env.MONGODB_URI),
     MailerModule.forRoot({
       transport: {
         host: 'smtp.gmail.com',
@@ -23,12 +26,13 @@ import { MailerModule } from '@nestjs-modules/mailer';
     }),
     HttpModule,
     NotificationsModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(IsAuthenticatedMiddleware).forRoutes('*');
+    consumer.apply(IsAuthenticatedMiddleware).exclude('/auth/login').forRoutes('*');
   }
 }

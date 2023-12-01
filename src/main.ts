@@ -3,9 +3,6 @@ import { ValidationPipe } from '@nestjs/common/pipes';
 import { NestFactory } from '@nestjs/core';
 import { useContainer } from 'class-validator';
 import { AppModule } from './app.module';
-import * as admin from 'firebase-admin';
-import fs from 'fs';
-import path from 'path';
 
 export const bootstrap = async () => {
   const app = await NestFactory.create(AppModule);
@@ -28,11 +25,6 @@ export const bootstrap = async () => {
       },
     }),
   );
-
-  const serviceAccount = JSON.parse(fs.readFileSync(path.join('serviceAccount.json'), 'utf-8'));
-  admin.initializeApp({
-    credential: admin.credential.cert({ ...serviceAccount }),
-  });
 
   await app.listen(process.env.PORT, () => {
     console.log('Server running on port: ', process.env.PORT);

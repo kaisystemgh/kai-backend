@@ -57,6 +57,7 @@ export class NotificationsWsGateway implements OnGatewayConnection, OnGatewayDis
 
   @SubscribeMessage('reserva-updated')
   private handleReservaUpdated(client: Socket, payload: any) {
-    this.wss.emit('reserva-updated', JSON.parse(payload));
+    const client_id = client.handshake.headers.client_id;
+    this.wss.to(String(client_id)).emit('reserva-updated', JSON.parse(payload));
   }
 }

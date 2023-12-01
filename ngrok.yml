@@ -1,4 +1,4 @@
-authtoken: TU_NGROK_TOKEN
+authtoken: 2XGD5uwBLyvgeXrHnZfO5wAluLC_7zHpec2MnYNcweBSL8k5G
 connect_timeout: 30s
 console_ui: true
 console_ui_color: transparent
@@ -19,4 +19,4 @@ tunnels:
   kai_tunnel:
     addr: host.docker.internal:5000
     proto: http
-    domain: TU_NGROK_DOMAIN
+    domain: delicate-panda-cheaply.ngrok-free.app
