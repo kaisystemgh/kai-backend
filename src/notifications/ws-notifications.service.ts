@@ -3,12 +3,16 @@ import { Socket } from 'socket.io';
 import { ConnectedClients } from './dtos/sockets.dto';
 import { verify } from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
+import { AuthService } from 'src/auth/auth.service';
 @Injectable()
 export class WsNotificationsService {
   private JWT_SECRET: string;
   private connectedClients: ConnectedClients = {};
 
-  constructor(private readonly configService: ConfigService) {
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly authService: AuthService,
+  ) {
     this.JWT_SECRET = this.configService.get('JWT_SECRET');
   }
 
@@ -27,6 +31,7 @@ export class WsNotificationsService {
         const user = verify(token, this.JWT_SECRET);
         const user_id = user['user_id'];
         const client_id = user['client_id'];
+        if (!(await this.authService.existUser(user_id))) throw new Error();
 
         this.connectedClients[client.id] = { socket: client, user_id, client_id, kai_client_id: null };
         client.join(client_id);
@@ -34,7 +39,7 @@ export class WsNotificationsService {
 
       client.on('disconnect', () => this.removeClient(client.id));
     } catch (e) {
-      client.disconnect();
+      client.disconnect(true);
     }
   }
 

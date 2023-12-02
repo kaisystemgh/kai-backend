@@ -5,6 +5,7 @@ import { WsNotificationsService } from './ws-notifications.service';
 import { NotificationsWsGateway } from './ws-notifications.gateway';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from 'src/auth/models/User.model';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { User, UserSchema } from 'src/auth/models/User.model';
         schema: UserSchema,
       },
     ]),
+    AuthModule,
   ],
   providers: [NotificationsWsGateway, WsNotificationsService],
 })

@@ -2,12 +2,16 @@ import { UnauthorizedException, Injectable, NestMiddleware } from '@nestjs/commo
 import { Request, Response, NextFunction } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { verify } from 'jsonwebtoken';
+import { AuthService } from 'src/auth/auth.service';
 
 @Injectable()
 export class IsAuthenticatedMiddleware implements NestMiddleware {
   private API_KEY: string;
   private JWT_SECRET: string;
-  constructor(private readonly configService: ConfigService) {
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly authService: AuthService,
+  ) {
     this.API_KEY = this.configService.get('API_KEY');
     this.JWT_SECRET = this.configService.get('JWT_SECRET');
   }
@@ -21,8 +25,9 @@ export class IsAuthenticatedMiddleware implements NestMiddleware {
     if (!token) throw new UnauthorizedException('Authorization required');
 
     try {
-      verify(token, this.JWT_SECRET);
-      // req['user'] = await admin.auth().verifyIdToken(token);
+      const user = verify(token, this.JWT_SECRET);
+      const user_id = user['user_id'];
+      if (!(await this.authService.existUser(user_id))) throw new Error();
       next();
     } catch (error) {
       throw new UnauthorizedException('Invalid token');

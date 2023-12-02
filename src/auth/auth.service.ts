@@ -27,6 +27,10 @@ export class AuthService {
     return users.map((user) => user.email);
   }
 
+  async existUser(userId: string) {
+    return await this.usersModel.findById(userId);
+  }
+
   async create(createUserDto: LoginUserDto) {
     const { password, ...rest } = createUserDto;
 

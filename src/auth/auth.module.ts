@@ -29,5 +29,6 @@ import { User, UserSchema } from './models/User.model';
       },
     }),
   ],
+  exports: [AuthService],
 })
 export class AuthModule {}
