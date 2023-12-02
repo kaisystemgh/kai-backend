@@ -17,7 +17,6 @@ export class WsNotificationsService {
     const kai_client_id = client.handshake.headers.kai_client_id;
     try {
       if (kai_client_id) {
-        client.on('disconnect', () => {});
         this.connectedClients[client.id] = {
           socket: client,
           user_id: null,
@@ -33,7 +32,10 @@ export class WsNotificationsService {
         client.join(client_id);
       }
 
-      client.on('disconnect', () => this.removeClient(client.id));
+      client.once('disconnect', () => {
+        console.log('desconectando');
+        this.removeClient(client.id);
+      });
     } catch (e) {
       client.disconnect();
     }
