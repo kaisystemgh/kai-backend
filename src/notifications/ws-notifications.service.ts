@@ -17,12 +17,7 @@ export class WsNotificationsService {
     const kai_client_id = client.handshake.headers.kai_client_id;
     try {
       if (kai_client_id) {
-        client.on('disconnect', () => {
-          console.log('Escritorio disconnect');
-        });
-        client.on('close', () => {
-          console.log('Escritorio close');
-        });
+        client.on('disconnect', () => {});
         this.connectedClients[client.id] = {
           socket: client,
           user_id: null,
@@ -37,6 +32,8 @@ export class WsNotificationsService {
         this.connectedClients[client.id] = { socket: client, user_id, client_id, kai_client_id: null };
         client.join(client_id);
       }
+
+      client.on('disconnect', () => this.removeClient(client.id));
     } catch (e) {
       client.disconnect();
     }
