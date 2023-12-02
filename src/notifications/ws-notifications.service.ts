@@ -17,23 +17,25 @@ export class WsNotificationsService {
     const kai_client_id = client.handshake.headers.kai_client_id;
     try {
       if (kai_client_id) {
-        if (this.canConnectUser(String(kai_client_id))) {
-          this.connectedClients[client.id] = {
-            socket: client,
-            user_id: null,
-            client_id: null,
-            kai_client_id: String(kai_client_id),
-          };
-        } else client.disconnect();
+        client.on('disconnect', () => {
+          console.log('Escritorio disconnect');
+        });
+        client.on('close', () => {
+          console.log('Escritorio close');
+        });
+        this.connectedClients[client.id] = {
+          socket: client,
+          user_id: null,
+          client_id: null,
+          kai_client_id: String(kai_client_id),
+        };
       } else {
         const user = verify(token, this.JWT_SECRET);
         const user_id = user['user_id'];
         const client_id = user['client_id'];
 
-        if (this.canConnectUser(user_id)) {
-          this.connectedClients[client.id] = { socket: client, user_id, client_id, kai_client_id: null };
-          client.join(client_id);
-        } else client.disconnect();
+        this.connectedClients[client.id] = { socket: client, user_id, client_id, kai_client_id: null };
+        client.join(client_id);
       }
     } catch (e) {
       client.disconnect();
@@ -49,44 +51,39 @@ export class WsNotificationsService {
   }
 
   async handleGetReservas(client: Socket, date: string) {
-    const kai = await this.getKAIDesktopClient(client);
+    const kai = this.getKAIDesktopClient(client);
     if (!kai) return 'KAI not found';
     return kai.emitWithAck('get-reservas', date);
   }
 
   async handleGetReserva(client: Socket, id: string) {
-    const kai = await this.getKAIDesktopClient(client);
+    const kai = this.getKAIDesktopClient(client);
     if (!kai) return 'KAI not found';
     return kai.emitWithAck('get-reserva', id);
   }
 
   async handleGetRecursosDisponibles(client: Socket, payload: string[]) {
-    const kai = await this.getKAIDesktopClient(client);
+    const kai = this.getKAIDesktopClient(client);
     if (!kai) return 'KAI not found';
     return kai.emitWithAck('get-recursos-disponibles', payload);
   }
 
   async handleSaveReserva(client: Socket, payload: any) {
-    const kai = await this.getKAIDesktopClient(client);
+    const kai = this.getKAIDesktopClient(client);
     if (!kai) return 'KAI not found';
     return kai.emitWithAck('save-reserva', [payload, client.handshake.headers.user_id]);
   }
 
   async handleUpdateReserva(client: Socket, payload: any) {
-    const kai = await this.getKAIDesktopClient(client);
+    const kai = this.getKAIDesktopClient(client);
     if (!kai) return 'KAI not found';
     return kai.emitWithAck('update-reserva', [payload, client.handshake.headers.user_id]);
   }
 
   async handleDeleteReserva(client: Socket, payload: any) {
-    const kai = await await this.getKAIDesktopClient(client);
+    const kai = this.getKAIDesktopClient(client);
     if (!kai) return 'KAI not found';
     return kai.emitWithAck('delete-reserva', [payload, client.handshake.headers.user_id]);
-  }
-
-  private canConnectUser(user_id: string) {
-    // if (Object.values(this.connectedClients).some((x) => x.user_id === user_id)) return false;
-    return true;
   }
 
   private getKAIDesktopClient(client: Socket): Socket | null {
