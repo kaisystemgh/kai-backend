@@ -6,7 +6,7 @@ WORKDIR /var/www/kai
 
 # Copiar el directorio y su contenido
 COPY . ./var/www/kai
-COPY package.json tsconfig.json tsconfig.build.json serviceAccount.json /var/www/kai/
+COPY package.json tsconfig.json tsconfig.build.json /var/www/kai/
 
 # Instala el Nest CLI globalmente
 RUN npm install -g @nestjs/cli
@@ -22,7 +22,5 @@ RUN npm cache clean --force
 
 EXPOSE 5000
 
-#start for dev
-CMD [ "npm", "run", "start:dev" ]
 #start for prod
-# CMD [ "npm", "start"]
+CMD [ "npm", "run", "start" ]

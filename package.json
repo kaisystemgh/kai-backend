@@ -34,7 +34,7 @@
     "@nestjs/swagger": "^7.1.14",
     "@nestjs/websockets": "^10.2.8",
     "@ngrok/ngrok": "^0.9.0",
-    "axios": "^1.5.1",
+    "axios": "^1.6.2",
     "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",

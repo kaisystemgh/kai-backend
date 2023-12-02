@@ -85,7 +85,7 @@ export class WsNotificationsService {
   }
 
   private canConnectUser(user_id: string) {
-    if (Object.values(this.connectedClients).some((x) => x.user_id === user_id)) return false;
+    // if (Object.values(this.connectedClients).some((x) => x.user_id === user_id)) return false;
     return true;
   }
 
