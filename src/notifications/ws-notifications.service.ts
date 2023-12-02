@@ -32,10 +32,7 @@ export class WsNotificationsService {
         client.join(client_id);
       }
 
-      client.once('disconnect', () => {
-        console.log('desconectando');
-        this.removeClient(client.id);
-      });
+      client.on('disconnect', () => this.removeClient(client.id));
     } catch (e) {
       client.disconnect();
     }
