@@ -33,6 +33,6 @@ import { AuthModule } from './auth/auth.module';
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(IsAuthenticatedMiddleware).exclude('/auth/login').forRoutes('*');
+    consumer.apply(IsAuthenticatedMiddleware).exclude('/auth/login').exclude().forRoutes('*');
   }
 }
