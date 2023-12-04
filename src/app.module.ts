@@ -8,6 +8,7 @@ import { IsAuthenticatedMiddleware } from './common/middlewares/IsAuthenticated.
 import { MailerModule } from '@nestjs-modules/mailer';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
+import { LoggerMiddleware } from './common/middlewares/Logger.middleware';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { AuthModule } from './auth/auth.module';
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggerMiddleware).exclude('*').forRoutes('*');
     consumer.apply(IsAuthenticatedMiddleware).exclude('/auth/login', '/').forRoutes('*');
   }
 }
