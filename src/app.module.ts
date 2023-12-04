@@ -34,7 +34,7 @@ import { LoggerMiddleware } from './common/middlewares/Logger.middleware';
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggerMiddleware).exclude('*').forRoutes('*');
+    consumer.apply(LoggerMiddleware).forRoutes('*');
     consumer.apply(IsAuthenticatedMiddleware).exclude('/auth/login', '/').forRoutes('*');
   }
 }
